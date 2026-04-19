@@ -22,11 +22,7 @@ jobs:
       - name: 安装依赖
         run: yarn install
       - name: 执行RSS程序
-        run: 
-              # 先手动发一条纯文本给飞书，看看通道通不通
-          curl -X POST -H "Content-Type: application/json" -d '{"msg_type":"text","content":{"text":"GitHub 通道测试：连接成功！"}}' ${{ secrets.FEISHU_WEBHOOK }}
-          # 再执行原有的脚本
-          yarn rss
+        run: yarn rss
         env:
           SEED_URL: ${{ secrets.RSS_URL}} 
           WEB_HOOK: ${{ secrets.FEISHU_WEBHOOK }}
