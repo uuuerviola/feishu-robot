@@ -24,7 +24,7 @@ jobs:
       - name: 执行RSS程序
         run: yarn rss
         env:
-          SEED_URL: ${{ secrets.RSS_URL }}
+          SEED_URL: https://rsshub.app/reuters/world/china # 
           WEB_HOOK: ${{ secrets.FEISHU_WEBHOOK }}
           APP_ID: ${{ secrets.APP_ID }}
           APP_SECRET: ${{ secrets.APP_SECRET }}
