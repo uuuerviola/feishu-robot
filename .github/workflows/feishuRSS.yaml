@@ -5,38 +5,39 @@ on:
   push:
     branches:
       - master
-  workflow_dispatch: # 增加这一行，方便你手动点击按钮测试
+  workflow_dispatch: 
 
 jobs:
   RSS_Process:
     runs-on: ubuntu-latest
-    # 删掉了 environment: ACTION_SECRET，这样它会直接去默认仓库找 Secrets
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          persist-credentials: true 
-          fetch-depth: 0 
-      - uses: actions/setup-node@v3
-        with:
-          node-version: "16.x"
+          node-version: "20.x"
       - name: 安装依赖
         run: yarn install
       - name: 执行RSS程序
-        run: yarn rss
+        run: |
+          # 1. 强制发送一条测试消息，验证 Webhook 是否打通
+          curl -X POST -H "Content-Type: application/json" \
+          -d '{"msg_type":"text","content":{"text":"GitHub Actions 通道测试：正在尝试抓取资讯..."}}' \
+          ${{ secrets.FEISHU_WEBHOOK }}
+          
+          # 2. 执行真正的抓取脚本
+          yarn rss
         env:
-          SEED_URL: ${{ secrets.RSS_URL}} 
+          SEED_URL: ${{ secrets.RSS_URL }}
           WEB_HOOK: ${{ secrets.FEISHU_WEBHOOK }}
           APP_ID: ${{ secrets.APP_ID }}
           APP_SECRET: ${{ secrets.APP_SECRET }}
       - name: commit code
-        # 增加一条判定：如果没有新资讯更新，就不执行 commit，避免报红叉
         run: |
           git config --local user.email "robot@robot.kasong.com"
           git config --local user.name "feishu-robot-github-actions"
           git add .
           git diff --quiet && git diff --staged --quiet || (git commit -m "定时执行 $(date)" && echo "HAS_CHANGES=true" >> $GITHUB_ENV)
       - name: push code
-        # 只有在有新内容时才推送，彻底解决红叉问题
         if: env.HAS_CHANGES == 'true'
         uses: ad-m/github-push-action@master
         with:
