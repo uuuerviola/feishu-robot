@@ -22,8 +22,8 @@ jobs:
       - name: 执行RSS程序
         run: yarn rss
         env:
-          SEED_URL: ${{ secrets.SEED_URL }}
-          WEB_HOOK: ${{ secrets.WEB_HOOK }}
+          SEED_URL: ${{ secrets.RSS_URL }}
+          WEB_HOOK: ${{ secrets.FEISHU_WEBHOOK }}
           APP_ID: ${{ secrets.APP_ID }}
           APP_SECRET: ${{ secrets.APP_SECRET }}
       - name: commit code
