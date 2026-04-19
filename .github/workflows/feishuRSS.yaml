@@ -22,9 +22,13 @@ jobs:
       - name: 安装依赖
         run: yarn install
       - name: 执行RSS程序
-        run: yarn rss
+        run: 
+              # first step
+              curl -X POST -H "Content-Type: application/json" -d '{"msg_type":"text","content":{"text":"GitHub 通道测试：连接成功！"}}' ${{ secrets.FEISHU_WEBHOOK }}
+              # second step
+              yarn rss
         env:
-          SEED_URL: https://rsshub.app/reuters/world/china # 
+          SEED_URL: ${{ secrets.RSS_URL}} 
           WEB_HOOK: ${{ secrets.FEISHU_WEBHOOK }}
           APP_ID: ${{ secrets.APP_ID }}
           APP_SECRET: ${{ secrets.APP_SECRET }}
