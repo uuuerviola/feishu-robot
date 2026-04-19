@@ -5,15 +5,17 @@ on:
   push:
     branches:
       - master
+  workflow_dispatch: # 增加这一行，方便你手动点击按钮测试
+
 jobs:
   RSS_Process:
     runs-on: ubuntu-latest
-    environment: ACTION_SECRET
+    # 删掉了 environment: ACTION_SECRET，这样它会直接去默认仓库找 Secrets
     steps:
       - uses: actions/checkout@v3
         with:
-          persist-credentials: false # otherwise, the token used is the GITHUB_TOKEN, instead of your personal access token.
-          fetch-depth: 0 # otherwise, there would be errors pushing refs to the destination repository.
+          persist-credentials: true 
+          fetch-depth: 0 
       - uses: actions/setup-node@v3
         with:
           node-version: "16.x"
@@ -27,18 +29,17 @@ jobs:
           APP_ID: ${{ secrets.APP_ID }}
           APP_SECRET: ${{ secrets.APP_SECRET }}
       - name: commit code
+        # 增加一条判定：如果没有新资讯更新，就不执行 commit，避免报红叉
         run: |
-          git add .
-          export COMMIT_DATE=$(date)
           git config --local user.email "robot@robot.kasong.com"
           git config --local user.name "feishu-robot-github-actions"
-          git commit -m "定时执行 $COMMIT_DATE"
+          git add .
+          git diff --quiet && git diff --staged --quiet || (git commit -m "定时执行 $(date)" && echo "HAS_CHANGES=true" >> $GITHUB_ENV)
       - name: push code
+        # 只有在有新内容时才推送，彻底解决红叉问题
+        if: env.HAS_CHANGES == 'true'
         uses: ad-m/github-push-action@master
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           branch: master
           force: true
-
-
-
