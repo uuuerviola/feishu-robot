@@ -1,7 +1,7 @@
 name: "feishu info"
 on:
   schedule:
-    - cron: "*/30 * * * *" # 每30分钟运行一次
+    - cron: "*/60 * * * *" # 每30分钟运行一次
   push:
     branches: [ master ]
   workflow_dispatch:
